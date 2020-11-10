@@ -1,0 +1,48 @@
+plugins {
+    id "java"
+    id "maven-publish"
+}
+
+import javax.inject.Inject 
+
+configurations {
+    other {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage, "other"))
+        }
+    }
+}
+
+artifacts {
+    other(file("build.gradle"))
+}
+
+/**
+* This contraption is just to get a holde of the SoftwareComponentFactory.
+* This would go in a plugin
+*/
+abstract class GetComponentFactory {
+    SoftwareComponentFactory factory
+    @Inject
+    GetComponentFactory(SoftwareComponentFactory f) {
+        factory = f
+    }
+}
+def factory = objects.newInstance(GetComponentFactory).factory
+
+def otherComponent = factory.adhoc("other")
+components.add(otherComponent)
+
+publishing {
+    publications {
+        main(MavenPublication) {
+            from(components.java)
+        }
+        other(MavenPublication) {
+            artifactId "${project.name}-meta"
+            from(otherComponent)
+        }
+    }
+}

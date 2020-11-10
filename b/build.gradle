@@ -1,0 +1,16 @@
+plugins {
+    id "java"
+    id "maven-publish"
+}
+
+dependencies {
+    implementation project(":a")
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
